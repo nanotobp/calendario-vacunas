@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calendario Nacional de Vacunación 2025 - MSPBS Paraguay</title>
+  <meta name="description" content="Esquema Nacional de Vacunación 2025 - Programa Ampliado de Inmunizaciones"/>
+  <style>
+    :root {
+      --primary: #E30613;    /* Rojo Paraguay oficial */
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1e1e1e;
+      --border: #dee2e6;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #f8f9fa;
+      --border: #333;
+      --light: #2d2d2d;
+    }
+    body {margin:0; font-family:"Roboto",Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; transition:background .3s,color .3s;}
+    .bandera {height:6px; background:linear-gradient(to right,#E30613 33%,#ffffff 33%,#ffffff 66%,#003087 66%);}
+    header {background:#ffffff; color:#000000; text-align:center; padding:30px 20px; box-shadow:0 4px 15px rgba(0,0,0,0.08);}
+    .logos {display:flex; justify-content:center; align-items:center; gap:25px; flex-wrap:wrap; margin-bottom:10px;}
+    .logos img {height:75px;}
+    h1 {margin:8px 0; font-size:2.3rem; font-weight:700; color:#000;}
+    .subtitle {opacity:0.85; font-size:1.15rem; color:#333;}
+    .container {max-width:1200px; margin:30px auto; padding:0 20px;}
+    .toolbar {display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;}
+    .search {flex:1; min-width:260px; padding:12px 16px; border:1px solid var(--border); border-radius:8px; font-size:1rem;}
+    .theme-btn {
+      background:var(--primary); color:white; border:none; width:50px; height:50px;
+      border-radius:50%; cursor:pointer; font-size:1.5rem; display:flex; align-items:center; justify-content:center;
+    }
+    .filters {display:flex; flex-wrap:wrap; gap:12px; margin:25px 0;}
+    .chip {padding:10px 20px; background:var(--light); border:1px solid var(--border); border-radius:30px; cursor:pointer; transition:.2s; font-weight:500;}
+    .chip.active {background:var(--primary); color:white; border-color:var(--primary);}
+    .grid {display:grid; gap:22px; grid-template-columns:repeat(auto-fill,minmax(360px,1fr));}
+    .card {background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,.08); transition:.2s;}
+    .card:hover {transform:translateY(-4px); box-shadow:0 12px 25px rgba(0,0,0,.15);}
+    .card-header {background:var(--primary); color:white; padding:18px 20px;}
+    .card-header h3 {margin:0; font-size:1.35rem;}
+    .card-header .age {font-size:0.95rem; opacity:0.9; margin-top:4px;}
+    .card-body {padding:20px;}
+    .vaccine {display:flex; align-items:flex-start; margin:13px 0; font-size:1.02rem;}
+    .dot {width:10px; height:10px; border-radius:50%; background:#ccc; margin:6px 12px 0 0; flex-shrink:0;}
+    footer {text-align:center; padding:40px 20px; background:var(--light); color:var(--gray); margin-top:50px; font-size:0.95rem;}
+    @media (max-width:768px){
+      h1{font-size:2rem;}
+      .grid{grid-template-columns:1fr;}
+      .toolbar{flex-direction:column; align-items:stretch;}
+      .theme-btn{margin:10px auto;}
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bandera"></div>
+  <header>
+    <div class="logos">
+      <img src="https://www.mspbs.gov.py/dependencias/portal/fotos/e380af-LOGOMINDESALUDGDPHORIZONTALCOLOR.jpg" alt="Ministerio de Salud Pública y Bienestar Social">
+    </div>
+    <h1>Calendario Nacional de Vacunación 2025</h1>
+    <p class="subtitle">Programa Ampliado de Inmunizaciones • Ministerio de Salud Pública y Bienestar Social</p>
+  </header>
+
+  <div class="container">
+    <div class="toolbar">
+      <input type="text" class="search" placeholder="Buscar por edad o vacuna..." id="search"/>
+      <button class="theme-btn" id="themeBtn">☀️</button>
+    </div>
+
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <footer>
+    Fuente oficial: Programa Ampliado de Inmunizaciones (PAI) - MSPBS<br>
+    Actualizado noviembre 2025 • <a href="https://pai.mspbs.gov.py" style="color:var(--primary)">pai.mspbs.gov.py</a>
+  </footer>
+
+  <script>
+    const vacunas = [
+      {edad:"Al nacer",meses:0,vacunas:["BCG (tuberculosis)","Hepatitis B (dosis nacimiento)"]},
+      {edad:"2 meses",meses:2,vacunas:["Pentavalente 1ª (DTPa-HB-Hib)","Rotavirus 1ª","Neumococo conjugada 1ª","IPV 1ª"]},
+      {edad:"4 meses",meses:4,vacunas:["Pentavalente 2ª","Rotavirus 2ª","Neumococo conjugada 2ª"]},
+      {edad:"6 meses",meses:6,vacunas:["Pentavalente 3ª","Rotavirus 3ª (si corresponde)","Neumococo conjugada 3ª","Influenza pediátrica 1ª dosis"]},
+      {edad:"7 meses",meses:7,vacunas:["Influenza pediátrica 2ª dosis (30 días después)"]},
+      {edad:"12 meses",meses:12,vacunas:["SRP 1ª (Sarampión-Rubéola-Paperas)","Neumococo refuerzo","Meningococo ACWY","Varicela 1ª"]},
+      {edad:"15 meses",meses:15,vacunas:["DTPa refuerzo","Hib refuerzo","Varicela 2ª (si no se aplicó antes)"]},
+      {edad:"18 meses",meses:18,vacunas:["Hepatitis A"]},
+      {edad:"4 años",meses:48,vacunas:["dTpa","SRP 2ª","Polio oral refuerzo (OPV)"]},
+      {edad:"6 a 8 años (2025)",meses:84,vacunas:["Dengue (Qdenga) – 2 dosis con intervalo 3 meses (zonas priorizadas)"]},
+      {edad:"11 años",meses:132,vacunas:["VPH (2 dosis: 0 y 6 meses)","dTpa refuerzo adolescentes"]},
+      {edad:"Embarazadas",meses:null,vacunas:["dTpa (desde semana 20)","Influenza (cualquier trimestre)"]},
+      {edad:"Adultos ≥18 años",meses:null,vacunas:["dT cada 10 años","Influenza anual","Neumococo (según riesgo)"]}
+    ];
+
+    const filtros = ["Todos","0-12 meses","1-5 años","6-10 años","Adolescentes","Adultos","Embarazadas"];
+    const grid = document.getElementById("grid");
+    const search = document.getElementById("search");
+    const filtersDiv = document.getElementById("filters");
+    const themeBtn = document.getElementById("themeBtn");
+
+    // Modo oscuro/claro con iconos
+    if (localStorage.theme === "dark" || (!localStorage.theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      themeBtn.textContent = "🌙";
+    } else {
+      themeBtn.textContent = "☀️";
+    }
+
+    themeBtn.onclick = () => {
+      if (document.documentElement.hasAttribute("data-theme")) {
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.theme = "light";
+        themeBtn.textContent = "☀️";
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.theme = "dark";
+        themeBtn.textContent = "🌙";
+      }
+    };
+
+    // Renderizar tarjetas
+    function render(data) {
+      grid.innerHTML = "";
+      data.forEach(i => {
+        const card = document.createElement("div"); 
+        card.className = "card";
+        const lista = i.vacunas.map(v => `<div class="vaccine"><div class="dot"></div><span>${v}</span></div>`).join("");
+        card.innerHTML = `
+          <div class="card-header">
+            <h3>${i.edad}</h3>
+            <div class="age">Esquema regular obligatorio</div>
+          </div>
+          <div class="card-body">${lista}</div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filtros
+    filtros.forEach((f, idx) => {
+      const chip = document.createElement("div");
+      chip.className = "chip" + (idx === 0 ? " active" : "");
+      chip.textContent = f;
+      chip.onclick = () => { 
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active")); 
+        chip.classList.add("active"); 
+        filtrar(); 
+      };
+      filtersDiv.appendChild(chip);
+    });
+
+    function filtrar() {
+      const term = search.value.toLowerCase();
+      const activo = document.querySelector(".chip.active").textContent;
+      const res = vacunas.filter(i => {
+        const textoOk = i.edad.toLowerCase().includes(term) || i.vacunas.some(v => v.toLowerCase().includes(term));
+        if (!textoOk) return false;
+        if (activo === "Todos") return true;
+        if (activo === "0-12 meses") return i.meses <= 12;
+        if (activo === "1-5 años") return i.meses > 12 && i.meses <= 60;
+        if (activo === "6-10 años") return i.edad.includes("6 a 8") || i.edad.includes("11");
+        if (activo === "Adolescentes") return i.edad.includes("11");
+        if (activo === "Adultos") return i.edad.includes("Adultos");
+        if (activo === "Embarazadas") return i.edad.includes("Embarazadas");
+        return true;
+      });
+      render(res.length ? res : vacunas);
+    }
+
+    search.addEventListener("input", filtrar);
+    render(vacunas);
+  </script>
+</body>
+</html>
